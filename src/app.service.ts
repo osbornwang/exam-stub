@@ -65,8 +65,8 @@ export class AppService {
           '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
           '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
         ],
-        startTime: '2020-07-06 08:20:10',
-        endTime: '2020-07-06 10:20:10',
+        startTime: new Date(Date.now() - 1000 * 60 * 60 * 1),
+        endTime: new Date(Date.now() + 1000 * 60 * 60 * 1),
       },
       {
         id: 'lokfu1-lokfu-jr874j3-h8d9j4-hor82kd7',
@@ -76,8 +76,8 @@ export class AppService {
           '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
           '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
         ],
-        startTime: '2020-07-05 08:20:10',
-        endTime: '2020-07-05 10:20:10',
+        startTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        endTime: new Date(Date.now() - 1000 * 60 * 60 * 22),
       },
     ];
 
@@ -89,8 +89,8 @@ export class AppService {
       new RegExp('[a-zA-Z-0-9]{32}').test(examinationId) &&
       new RegExp('[a-zA-Z-0-9]{32}').test(studentId) &&
       answerSheet &&
-      new Date(answerSheet.startTime).getTime() > Date.now() &&
-      new Date(answerSheet.endTime).getTime() < Date.now()
+      new Date(answerSheet.startTime).getTime() < Date.now() &&
+      new Date(answerSheet.endTime).getTime() > Date.now()
     ) {
       return { status: 201 };
     } else {
