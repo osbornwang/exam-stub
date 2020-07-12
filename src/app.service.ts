@@ -4,7 +4,7 @@ import {
   Examination,
   Quizze,
   StartExamination,
-  AnswerSheet,
+  AnswerSheetParams,
 } from './model';
 
 @Injectable()
@@ -13,28 +13,18 @@ export class AppService {
     return 'Hello World!';
   }
 
-  getQuizzesByPageId(id: string): Quizze[] {
-    const quizze = {
-      id: '8jk4l-k0d9ie7-4jk89l-t88ijj6-h8ijsl1',
-      score: 5,
-    } as Quizze;
-    const scores = [5, 10, 20, 15, 20, 30];
-    return scores.map(score => {
-      return Object.assign(quizze, {
-        score,
-      });
-    });
-  }
-
   createExaminations(createExamParams: Examination): StatusCode {
-    const { paperId, teacherId, duration } = createExamParams;
-    const quizzes = this.getQuizzesByPageId(paperId);
+    const { paperId, teacherId, duration, quizzes } = createExamParams;
     if (
       new RegExp('[a-zA-Z-0-9]{32}').test(paperId) &&
       new RegExp('[a-zA-Z-0-9]{32}').test(teacherId) &&
       duration > 0 &&
       duration < 1000 &&
-      quizzes.length > 0
+      quizzes.length > 0 &&
+      quizzes.every(quizze => new RegExp('[a-zA-Z-0-9]{32}').test(quizze.id)) &&
+      quizzes.reduce((total, num) => {
+        return total + num.score;
+      }, 0) === 100
     ) {
       return { status: 201 };
     } else {
@@ -43,10 +33,26 @@ export class AppService {
   }
 
   startExam(startExaminationParams: StartExamination): StatusCode {
-    const { examinationId, studentId } = startExaminationParams;
+    const {
+      examinationId,
+      studentId,
+      teacherId,
+      paperId,
+      duration,
+      quizzes,
+    } = startExaminationParams;
     if (
       new RegExp('[a-zA-Z-0-9]{32}').test(examinationId) &&
-      new RegExp('[a-zA-Z-0-9]{32}').test(studentId)
+      new RegExp('[a-zA-Z-0-9]{32}').test(studentId) &&
+      new RegExp('[a-zA-Z-0-9]{32}').test(teacherId) &&
+      new RegExp('[a-zA-Z-0-9]{32}').test(paperId) &&
+      duration > 0 &&
+      duration < 1000 &&
+      quizzes.length > 0 &&
+      quizzes.every(quizze => new RegExp('[a-zA-Z-0-9]{32}').test(quizze.id)) &&
+      quizzes.reduce((total, num) => {
+        return total + num.score;
+      }, 0) === 100
     ) {
       return { status: 201 };
     } else {
@@ -54,43 +60,23 @@ export class AppService {
     }
   }
 
-  answerExam(answerSheetParams: AnswerSheet): StatusCode {
-    const { examinationId, studentId, answers } = answerSheetParams;
-    const answerSheetList = [
-      {
-        id: '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        examinationId: '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        studentId: '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        answers: [
-          '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-          '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        ],
-        startTime: new Date(Date.now() - 1000 * 60 * 60 * 1),
-        endTime: new Date(Date.now() + 1000 * 60 * 60 * 1),
-      },
-      {
-        id: 'lokfu1-lokfu-jr874j3-h8d9j4-hor82kd7',
-        examinationId: '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        studentId: '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        answers: [
-          '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-          '9idk4-lokfu-jr874j3-h8d9j4-hor82kd7',
-        ],
-        startTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        endTime: new Date(Date.now() - 1000 * 60 * 60 * 22),
-      },
-    ];
-
-    const answerSheet = answerSheetList.find(
-      answerSheet => answerSheet.id === examinationId,
-    );
-
+  answerExam(answerSheetParams: AnswerSheetParams): StatusCode {
+    const {
+      examinationId,
+      answerId,
+      studentId,
+      answers,
+      startTime,
+      submitTime,
+    } = answerSheetParams;
     if (
       new RegExp('[a-zA-Z-0-9]{32}').test(examinationId) &&
+      new RegExp('[a-zA-Z-0-9]{32}').test(answerId) &&
       new RegExp('[a-zA-Z-0-9]{32}').test(studentId) &&
-      answerSheet &&
-      new Date(answerSheet.startTime).getTime() < Date.now() &&
-      new Date(answerSheet.endTime).getTime() > Date.now()
+      answers.length > 0 &&
+      new Date(startTime).getTime() < new Date(submitTime).getTime() &&
+      new Date(submitTime).getTime() <
+        new Date(startTime).getTime() + 1000 * 60 * 60 * 120
     ) {
       return { status: 201 };
     } else {
