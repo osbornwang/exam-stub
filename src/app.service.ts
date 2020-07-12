@@ -48,6 +48,7 @@ export class AppService {
       new RegExp('[a-zA-Z-0-9]{32}').test(paperId) &&
       duration > 0 &&
       duration < 1000 &&
+      quizzes &&
       quizzes.length > 0 &&
       quizzes.every(quizze => new RegExp('[a-zA-Z-0-9]{32}').test(quizze.id)) &&
       quizzes.reduce((total, num) => {
@@ -73,6 +74,7 @@ export class AppService {
       new RegExp('[a-zA-Z-0-9]{32}').test(examinationId) &&
       new RegExp('[a-zA-Z-0-9]{32}').test(answerId) &&
       new RegExp('[a-zA-Z-0-9]{32}').test(studentId) &&
+      answers &&
       answers.length > 0 &&
       new Date(startTime).getTime() < new Date(submitTime).getTime() &&
       new Date(submitTime).getTime() <
